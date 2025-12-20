@@ -1,4 +1,3 @@
-
 # import numpy as np
 # from sklearn.metrics import accuracy_score, confusion_matrix
 # from quantum_preprocess import preprocess_data
@@ -28,7 +27,7 @@
 #  rok accurancy 
 
 import numpy as np
-from sklearn.metrics import accuracy_score, confusion_matrix
+from sklearn.metrics import accuracy_score, confusion_matrix, roc_auc_score
 from quantum_preprocess import preprocess_data
 from vqc_circuit import qnode
 
@@ -42,7 +41,9 @@ def predict(x):
     return 1 if qnode(params, x) >= 0 else 0
 
 y_pred = np.array([predict(x) for x in X_test])
+probs = (y_pred + 1) / 2  # y_pred is array of ⟨Z⟩ outputs
 
 print("\nAccuracy:", accuracy_score(y_test, y_pred))
 print("Confusion Matrix:")
 print(confusion_matrix(y_test, y_pred))
+print("ROC AUC:", roc_auc_score(y_test, probs))

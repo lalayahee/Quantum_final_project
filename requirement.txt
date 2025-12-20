@@ -4,20 +4,11 @@ scikit-learn
 matplotlib
 seaborn
 joblib
+plotly
 
 qiskit
 qiskit-aer
 qiskit-machine-learning
+pennylane
 
 streamlit
-
-
---> command : 
-
-    - python -m venv venv
-    - venv\Scripts\activate
-    - pip install matplotlib
-    - pip install pennylane
-    - pip install scikit-learn
-
-

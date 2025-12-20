@@ -131,14 +131,65 @@ def preprocess_data(csv_path: str | Path | None = None):
 
     df = pd.read_csv(csv_path)
 
-    # ✅ SELECT 4 FEATURES
-    FEATURES = ["square", "price_per_sqm", "communityaverage", "totalprice"]
+    # ✅ SELECT features for MODEL (exclude price-derived columns to prevent label leakage)
+    # Keep price-derived fields available in the dataframe for the frontend, but DO NOT use them for training.
+    # Default non-leaky features (change if you intentionally want others)
+    DEFAULT_FEATURES = ["square", "communityaverage", "renovationcondition", "followers"]
+    FEATURES = DEFAULT_FEATURES
+
+    # If the classical pipeline saved a `model_features.json` whitelist, prefer it (but exclude price-derived cols)
+    model_feat_path = Path(__file__).resolve().parents[1] / "classical_ml" / "data" / "model_features.json"
+    if model_feat_path.exists():
+        try:
+            import json as _json
+            mf = _json.load(open(model_feat_path))
+            leak_cols = ['price','totalprice','price_per_sqm','log_price']
+            mf = [f for f in mf if f in df.columns and f not in leak_cols]
+            if mf:
+                FEATURES = mf
+                print("Using model features from", model_feat_path)
+        except Exception:
+            pass
+
     X = df[FEATURES].values
     y = df["target"].values  # 0 = cheap, 1 = expensive
 
     # Scale features to [0, pi]
     scaler = MinMaxScaler(feature_range=(0, np.pi))
     X_scaled = scaler.fit_transform(X)
+
+    # If a shared split (saved by the classical ML preprocessing) exists, load it so both pipelines use the same data.
+    split_dir = Path(__file__).resolve().parents[1] / "classical_ml" / "data"
+    x_train_npy = split_dir / "X_train.npy"
+    y_train_npy = split_dir / "y_train.npy"
+    x_test_npy = split_dir / "X_test.npy"
+    y_test_npy = split_dir / "y_test.npy"
+    if x_train_npy.exists() and y_train_npy.exists() and x_test_npy.exists() and y_test_npy.exists():
+        X_train = np.load(x_train_npy)
+        X_test = np.load(x_test_npy)
+        y_train = np.load(y_train_npy)
+        y_test = np.load(y_test_npy)
+        print("Loaded shared train/test split from:", split_dir)
+        # For quantum training we want a manageable sample size. If the classical split is large,
+        # subsample the training set (stratified) to MAX_Q_SAMPLES to keep circuit count reasonable.
+        MAX_Q_SAMPLES = 1000
+        if X_train.shape[0] > MAX_Q_SAMPLES:
+            from sklearn.model_selection import StratifiedShuffleSplit
+            sss = StratifiedShuffleSplit(n_splits=1, train_size=MAX_Q_SAMPLES, random_state=42)
+            sub_idx, _ = next(sss.split(X_train, y_train))
+            X_train = X_train[sub_idx]
+            y_train = y_train[sub_idx]
+            print(f"Subsampled training set to {MAX_Q_SAMPLES} examples for quantum training")
+        # fit scaler on training split and transform both train and test
+        try:
+            scaler = MinMaxScaler(feature_range=(0, np.pi))
+            scaler.fit(X_train)
+            X_train = scaler.transform(X_train)
+            X_test = scaler.transform(X_test)
+            print("Scaled shared split features to [0, pi] for quantum training")
+        except Exception:
+            pass
+        return X_train, X_test, y_train, y_test
 
     MAX_SAMPLES = 5000
     if len(X_scaled) > MAX_SAMPLES:

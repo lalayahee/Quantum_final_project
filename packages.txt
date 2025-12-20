@@ -1,0 +1,3 @@
+# System dependencies for Streamlit Cloud
+# These are automatically installed by Streamlit Cloud
+# No additional packages needed for this project
