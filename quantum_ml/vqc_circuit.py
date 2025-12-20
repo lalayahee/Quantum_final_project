@@ -44,7 +44,7 @@
 
 
 
-
+#  jea curcuit bos yg ( cnot ,......)
 
 import pennylane as qml
 from pennylane import numpy as np

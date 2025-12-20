@@ -1,3 +1,8 @@
+#  kleng user input information ( but just backend )
+
+
+
+
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
 from quantum_preprocess import preprocess_data
