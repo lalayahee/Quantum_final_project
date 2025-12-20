@@ -39,7 +39,7 @@
 
 
 
-
+#  train vqc ( model )
 
 
 import pennylane as qml

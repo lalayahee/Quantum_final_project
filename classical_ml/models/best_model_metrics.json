@@ -1,0 +1,44 @@
+{
+  "best_model": "rf",
+  "metrics": {
+    "test_accuracy": 1.0,
+    "test_roc_auc": 1.0,
+    "confusion_matrix": [
+      [
+        31859,
+        0
+      ],
+      [
+        0,
+        31906
+      ]
+    ],
+    "classification_report": {
+      "0": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 31859.0
+      },
+      "1": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 31906.0
+      },
+      "accuracy": 1.0,
+      "macro avg": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 63765.0
+      },
+      "weighted avg": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 63765.0
+      }
+    }
+  }
+}

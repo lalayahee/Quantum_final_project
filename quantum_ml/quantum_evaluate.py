@@ -25,7 +25,7 @@
 # print(confusion_matrix(y_test, y_pred))
 
 
-
+#  rok accurancy 
 
 import numpy as np
 from sklearn.metrics import accuracy_score, confusion_matrix
