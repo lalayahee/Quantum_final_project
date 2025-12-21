@@ -4,7 +4,11 @@ scikit-learn
 matplotlib
 seaborn
 joblib
+
 plotly
+
+panny 
+
 
 qiskit
 qiskit-aer
