@@ -13,19 +13,32 @@ from vqc_circuit import qnode
 params = np.load("trained_params.npy")
 
 # -----------------------------
-# User Inputs
+# User Inputs (interface unchanged)
 # -----------------------------
 square = float(input("Home size (m²): "))
 price_per_sqm = float(input("Price per sqm: "))
 communityaverage = float(input("Community average price: "))
 totalprice = float(input("Total price: "))
 
-X_user = np.array([[
-    square,
-    price_per_sqm,
-    communityaverage,
-    totalprice
-]])
+user_payload = {
+    "square": square,
+    "price_per_sqm": price_per_sqm,
+    "communityaverage": communityaverage,
+    "totalprice": totalprice,
+}
+
+# Determine model features (load whitelist if available)
+from pathlib import Path
+import json
+feat_path = Path(__file__).resolve().parents[1] / "classical_ml" / "data" / "model_features.json"
+if feat_path.exists():
+    with open(feat_path, 'r') as f:
+        FEATURES = json.load(f)
+else:
+    FEATURES = ["square", "communityaverage", "renovationcondition", "followers"]
+
+# Build X_user with the expected features (missing keys -> 0)
+X_user = np.array([[user_payload.get(f, 0) for f in FEATURES]])
 
 # -----------------------------
 # Scaling
